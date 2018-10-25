@@ -20,14 +20,15 @@ namespace WebAPIExample
           .MinimumLevel.Debug()
           .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
           .Enrich.FromLogContext()
-          .WriteTo.Console()
+                .WriteTo.Console()
+                .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
           .CreateLogger();
-
-           
+                       
 
             try
             {
                 Log.Information("Starting web host");
+            
                 CreateWebHostBuilder(args).Build().Run();
                 return 0;
             }
