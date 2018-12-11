@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
+using Serilog.Formatting.Json;
 
 namespace WebAPIExample
 {
@@ -16,12 +17,13 @@ namespace WebAPIExample
     {
         public static int Main(string[] args)
         {
+            var instanceId = Guid.NewGuid().ToString("N");
             Log.Logger = new LoggerConfiguration()
           .MinimumLevel.Debug()
           .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
           .Enrich.FromLogContext()
                 .WriteTo.Console()
-                .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
+                .WriteTo.File(new JsonFormatter(), $"D:\\ApplicationLogs\\WebAPIExample-{instanceId}.txt", rollingInterval: RollingInterval.Day)
           .CreateLogger();
                        
 
