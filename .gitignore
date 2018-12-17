@@ -41,4 +41,3 @@ Thumbs.db
 *.dotCover
 ApplicationLogs/
 log/
-*-priv.*
