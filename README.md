@@ -6,16 +6,72 @@ Humio is a log management system, which enables you to Log everything, answer an
 
 This repo contains source and guides on how to use Humio together with Service Fabric clusters and applications.
 
-- Setup a Service Fabric cluster and Humio
-  - Windows and ETW
-  - Linux fluentd
+**_Disclaimer_**
 
-- Setup application logging with .net core and Humio running on Service Fabric
+Not a full solution, just a set of examples - refer to SF docs on how to monitor Service Fabric.
 
-- Throughput test
+## Problem
 
-- Troubleshooting scenarios with Humio
+Three layers...
+Three phases...
 
-## Setup cluster
+### Instrumentation
 
-We created a cluster using these guidelines: https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-tutorial-create-vnet-and-windows-cluster
+- OS
+  - Performance Counters
+- Runtime
+  - Syslog, ETW and performance counters
+- Application
+  - Examples - abundance of logging frameworks and providers
+
+### Collect and ship
+
+- ETW
+- EventSource
+- Files
+- Performance Counters
+
+### Query and analyze
+
+## Solution
+
+### Instrumentation - Solution
+
+- OS
+    - Performance Counters
+- Runtime
+    - ETW Providers
+- Applications
+    - .net core console: SeriLog --> Files
+    - asp.net core: ILogger --> ILoggerProvider for EventSources
+
+### Collect and ship - Solution
+
+- ClusterMonitor
+    - ETW
+    - EventSource
+    - Performance Counters
+- FileBeat
+    - Files
+
+### Query and analyze - Solution
+
+## Repo Structure
+
+All contain a README.md with instructions
+
+- Applications
+    - .net core console Guest
+    - Reliable Service .net core webapi
+- Agents
+    - ClusterMonitor
+    - FileBeat
+- Humio
+    - Configuration
+    - Queries
+    - Dashboards
+- Scenarios
+    - Upgrade
+    - Failure (chaos)
+    - Exception hunting
+    - Performance
