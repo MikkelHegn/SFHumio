@@ -1,0 +1,13 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - "D:\\SvcFab\\_App\\**\\log\\*.log"
+  encoding: utf-8
+
+output.elasticsearch:
+  hosts: ["https://ops.humio.com:443/api/v1/ingest/elastic-bulk"]
+  username: "EHUpRswQ6OcnMlWsKyReU6KWwxdB6kPvhUdvrJZCXcpt"
+  compression_level: 5
+  bulk_max_size: 200
+  worker: 1
