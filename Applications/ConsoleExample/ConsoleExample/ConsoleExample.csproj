@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -14,18 +13,3 @@
     <PackageReference Include="Serilog.Formatting.Compact" Version="1.0.0" />
   </ItemGroup>
 </Project>
-=======
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
-    <PackageReference Include="Serilog.Formatting.Compact" Version="1.0.0" />
-  </ItemGroup>
-</Project>
->>>>>>> 97bc68cba8bc962f076aceefcc318d8a71aa1cb8
