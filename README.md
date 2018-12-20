@@ -33,6 +33,8 @@ Three phases...
 
 ### Query and analyze
 
+
+
 ## Solution
 
 ### Instrumentation - Solution
@@ -112,7 +114,13 @@ output.elasticsearch:
   worker: 1
 ```
 
+TODO: Note about Humio cloud vs. [On-Premises](https://www.humio.com/download).
+
+
+
 ### Query and analyze - Solution
+
+
 
 ## Repo Structure
 
