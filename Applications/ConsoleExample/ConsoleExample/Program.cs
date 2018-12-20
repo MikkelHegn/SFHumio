@@ -1,13 +1,23 @@
 ﻿using Newtonsoft.Json;
 using Serilog;
 using Serilog.Formatting.Compact;
+using Serilog.Formatting.Json;
+using Serilog.Events;
+using Serilog.Parsing;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using Serilog.Formatting;
+using Serilog.Core;
 
 namespace ConsoleExample
 {
+    class Foo{
+        public int Bar { get; set; }        
+        public int Baz { get; set; }        
+    }
+
     class Program
     {
         static int Main(string[] args)
@@ -17,15 +27,15 @@ namespace ConsoleExample
 
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
-                .Enrich.WithProperty("ProcessId", Process.GetCurrentProcess().Id.ToString())
-                .Enrich.WithProperty("ServiceFabricInfo", GetServiceFabricInfo())
-                .WriteTo.Console()
-                .WriteTo.File(new RenderedCompactJsonFormatter(), log, rollingInterval: RollingInterval.Day)
+                .Enrich.With(new ServiceFabricEnricher())       
+                .WriteTo.Console(new KvFormatter())
+               // .WriteTo.Console(new RenderedCompactJsonFormatter())
+                //.WriteTo.File(new KvFormatter(), log, rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
             try
             {
-                Random random = new Random();
+                var random = new Random();
 
                 while (true)
                 {
@@ -55,26 +65,58 @@ namespace ConsoleExample
 
             return 0;
         }
+    }
 
-        private static string GetServiceFabricInfo()
+
+    public class ServiceFabricEnricher : ILogEventEnricher
+    {
+        public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
         {
-            ServiceFabricInfo sfInfo = new ServiceFabricInfo
-            {
-                NodeName = Environment.GetEnvironmentVariable("Fabric_NodeName"),
-                ServiceName = Environment.GetEnvironmentVariable("Fabric_ServiceName"),
-                ApplicationName = Environment.GetEnvironmentVariable("Fabric_ApplicationName"),
-                ServicePackageActivationId = Environment.GetEnvironmentVariable("Fabric_ServicePackageActivationId")
-            };
+            var node = Environment.GetEnvironmentVariable("Fabric_NodeName");
+            if(!string.IsNullOrWhiteSpace(node))
+                logEvent.AddPropertyIfAbsent(new LogEventProperty("Fabric_NodeName", new ScalarValue(node)));
 
-            return JsonConvert.SerializeObject(sfInfo); ;
+            var service = Environment.GetEnvironmentVariable("Fabric_ServiceName");
+            if(!string.IsNullOrWhiteSpace(service))
+                logEvent.AddPropertyIfAbsent(new LogEventProperty("Fabric_ServiceName", new ScalarValue(service)));
+
+            var application = Environment.GetEnvironmentVariable("Fabric_ApplicationName");
+            if(!string.IsNullOrWhiteSpace(application))
+                logEvent.AddPropertyIfAbsent(new LogEventProperty("Fabric_ApplicationName", new ScalarValue(application)));
         }
+    }
 
-        private class ServiceFabricInfo
+    public class KvFormatter : ITextFormatter
+    {
+        public void Format(LogEvent logEvent, TextWriter output)
         {
-            public string NodeName { get; set; }
-            public string ServiceName { get; set; }
-            public string ApplicationName { get; set; }
-            public string ServicePackageActivationId { get; set; }
+            output.Write(logEvent.Timestamp.ToString("s", System.Globalization.CultureInfo.InvariantCulture));
+            output.Write(" Level=");
+            output.Write(logEvent.Level);
+            output.Write(" ");
+            output.Write(" ");
+            output.Write(logEvent.RenderMessage());
+            output.Write(". ");
+
+            foreach(var p in logEvent.Properties)
+            {
+                output.Write(p.Key);
+                output.Write("='");
+                output.Write(p.Value);
+                output.Write("' ");
+            }
+
+            if(logEvent.Exception != null)
+            {
+                output.Write("Exception='");
+                output.Write(logEvent.Exception.ToString());
+                output.Write("'");
+                output.Write("StackTrace='");
+                output.Write(logEvent.Exception.StackTrace);
+                output.Write("'");
+            }
+
+            output.Write("\n");
         }
     }
 }

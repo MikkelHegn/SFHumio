@@ -61,7 +61,9 @@ Should make it easy to aggregate `UserSessions`in your log management system aft
 With serilog you can configure where and how your log lines get outputtet. The option we are going to 
 choose is writing JSON formatted log lines to files. The above line would read as:
 
-TODO: add json log line
+```json
+{"@t":"2018-12-20T10:12:40.1798183Z","@m":"Number of user sessions 103","@i":"d27eb0e2","UserSessions":103}"}
+```
 
 With the following configuration in code:
 
