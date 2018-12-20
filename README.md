@@ -87,8 +87,30 @@ lasting bursts of log lines.
 
 #### Filebeat
 
-We have our logs formatted in JSON and written to files on disk, what's still missing is ingesting the loglines in Humio.
-[Filebeat](https://www.elastic.co/products/beats/filebeat) is a lightweight, cross platform shipper that is compatible with Humio.
+We have our logs formatted in JSON and written to files on disk, what's still missing is shipping the logs to Humio.
+[Filebeat](https://docs.humio.com/integrations/data-shippers/beats/filebeat/) is a lightweight, cross platform shipper that is compatible with Humio.
+Filebeat uses few resources, is easy to install and handles network problems gracefully.
+
+The following filebeat configuration scrapes all logs from `D:\\SvcFab\_App` and subfolders named `log` with files ending in `.log`.
+Humio is compatible with the elastic bulk API so we are using `output.elasticsearch`. The `hosts` parameter points to Humio cloud. 
+The `INGEST_TOKEN` needs to be replaced by a valid Ingest Token. Ingest Tokens are used in Humio to identify clients, selecting a repository 
+for the incoming logs and selecting which parser should be used. 
+
+```yaml
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - "D:\\SvcFab\\_App\\**\\log\\*.log"
+  encoding: utf-8
+
+output.elasticsearch:
+  hosts: ["https://cloud.humio.com:443/api/v1/ingest/elastic-bulk"]
+  username: "INGEST_TOKEN"
+  compression_level: 5
+  bulk_max_size: 200
+  worker: 1
+```
 
 ### Query and analyze - Solution
 
