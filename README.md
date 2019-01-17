@@ -73,10 +73,7 @@ Log.Logger = new LoggerConfiguration()
                 .CreateLogger();
 ```
 
-Writing logs to a file, instead of e.g. shipping it directly over the wire, has several important properties.
-Your disks are by and large as available as the machine running your program. Compare this to an exernal system 
-which will have a different lifecycle and might not be available when you need to transmit your log line. The file also acts as a persistent 
-buffer between your program and your log management system which enables us to handle retransmissions and long
+The file acts as a persistent buffer between your program and your log management system which enables us to handle retransmissions and long
 lasting bursts of log lines.
 
 
