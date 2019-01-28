@@ -132,9 +132,19 @@ when experimenting with the configuration.
 
 ### Query and analyze - Solution
 
-Let's take a look at a simple free text search in Humio.
+Let's take a look at a simple free text search in Humio:
 
-![alt text](images/search-freetext.png)
+![freetext search](images/search-freetext.png)
+
+We have searched for the word `sessions`, the result is displayed below and a specific log line has been selected with the details shown below the event list.
+
+Let's say we want to plot the average number of user sessions the last hour:
+
+![sum() timechart](images/sum-timechart.png)
+
+Notice the `Properties.UserSessions'. This is a structured part of the Serilog log line that allows for easy analysis.
+
+// TODO: or want the days where we at some point had less than..
 
 ## Repo Structure
 
