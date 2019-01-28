@@ -132,7 +132,9 @@ when experimenting with the configuration.
 
 ### Query and analyze - Solution
 
+Let's take a look at a simple free text search in Humio.
 
+![alt text](images/search-freetext.png)
 
 ## Repo Structure
 
