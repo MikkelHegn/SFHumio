@@ -58,24 +58,32 @@ Log.Information("Number of user sessions {@UserSessions}", userSessionCount);;
 ```
 
 Should make it easy to aggregate `UserSessions`in your log management system afterwards.
-With serilog you can configure where and how your log lines get outputtet. The option we are going to 
+With serilog you can configure where and how your log lines are outputtet. The option we are going to 
 choose is writing JSON formatted log lines to files. The above line would read as:
 
 ```json
-{"@t":"2018-12-20T10:12:40.1798183Z","@m":"Number of user sessions 103","@i":"d27eb0e2","UserSessions":103}"}
+{"Timestamp":"2019-01-28T09:38:08.3192070+01:00","Level":"Information","MessageTemplate":"Number of user sessions {@UserSessions}","RenderedMessage":"Number of user sessions 115","Properties":{"UserSessions":115}}
 ```
 
 With the following configuration in code:
 
 ```csharp
 Log.Logger = new LoggerConfiguration()
-                .WriteTo.File(new RenderedCompactJsonFormatter(), logPath, rollingInterval: RollingInterval.Day)
+                .WriteTo.File(formatter: new JsonFormatter(renderMessage: true), rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 ```
 
-The file acts as a persistent buffer between your program and your log management system which enables us to handle retransmissions and long
+Note the `renderMessage: true` part of the configuration. This instructs Serilog to render the message as part of the formatted log output which
+ends up in our log files. We are going to exploit a feature in Humio which allows us to display the rendered message instead of the raw json data.
+This makes it easier for a human to process the log lines. 
+
+The log file acts as a persistent buffer between your program and your log management system which enables us to handle retransmissions and long
 lasting bursts of log lines.
 
+Next, head up to https://cloud.humio.com and create a free account. Alternatively, you can run Humio on your own hardware. See 
+https://docs.humio.com/installation/.
+
+// TODO: 
 
 ### Collect and ship - Solution
 
@@ -107,14 +115,17 @@ filebeat.inputs:
 
 output.elasticsearch:
   hosts: ["https://cloud.humio.com:443/api/v1/ingest/elastic-bulk"]
-  username: "INGEST_TOKEN"
+  username: INGEST_TOKEN
   compression_level: 5
   bulk_max_size: 200
   worker: 1
 ```
 
-TODO: Note about Humio cloud vs. [On-Premises](https://www.humio.com/download).
-
+We need to get the `INGEST_TOKEN` from Humio. A default ingest token is configured for your log repository in Humio. Log in to Humio, go to 
+your log repository, click Settings and then 'Ingest API Tokens' and either retrieve the default or create a new one.
+When you send logs and metrics to Humio for ingestion it needs to be parsed before it is stored in a repository. Humio has a builtin parser 
+for Serilog that is configured as above. Make sure the Serilog parser is selected for the ingest token used. This is done by selecting the
+parser in the dropdown 'Assigned Parser' next to the Ingest Token.
 
 
 ### Query and analyze - Solution
