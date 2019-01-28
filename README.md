@@ -123,10 +123,12 @@ output.elasticsearch:
 
 We need to get the `INGEST_TOKEN` from Humio. A default ingest token is configured for your log repository in Humio. Log in to Humio, go to 
 your log repository, click Settings and then 'Ingest API Tokens' and either retrieve the default or create a new one.
-When you send logs and metrics to Humio for ingestion it needs to be parsed before it is stored in a repository. Humio has a builtin parser 
+When you send logs and metrics to Humio for ingestion it needs to be parsed before it is stored in a repository. Humio has a built-in parser 
 for Serilog that is configured as above. Make sure the Serilog parser is selected for the ingest token used. This is done by selecting the
 parser in the dropdown 'Assigned Parser' next to the Ingest Token.
 
+Starting filebeat can be done with e.g. `filebeat.exe -e -c filebeat.yml`. The `-e` flag instructs filebeat to log to the console which is usefull 
+when experimenting with the configuration.
 
 ### Query and analyze - Solution
 
