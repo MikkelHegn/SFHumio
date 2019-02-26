@@ -47,6 +47,9 @@ Three phases...
     - .net core console: SeriLog --> Files
     - asp.net core: ILogger --> ILoggerProvider for EventSources
 
+#### 
+
+
 #### Serilog
 
 [Serilog](https://serilog.net) is a popular logging framework for .NET. Serilog is focused on *structured* logging.
@@ -84,6 +87,34 @@ Next, head up to https://cloud.humio.com and create a free account. Alternativel
 https://docs.humio.com/installation/.
 
 // TODO: 
+
+#### Service Fabric Platform Events
+
+// TODO: this should probably be after introduction to Humios query language..
+
+### Parser
+
+For the ETW log lines produced by Service Fabric and shipped by EventFlow we are going to write a custom parser in Humio.
+ Humio parsers are written in Humios query language. The Service Fabric log lines contains both structured and unstructured data.
+Here's an example:
+
+`{"timestamp":"2019-02-26T10:40:51.0501913+00:00","providerName":"Microsoft-ServiceFabric","level":4,"keywords":1152921504606846977,"payload":{"ID":1284,"EventName":"PerfMonitor","Message":"Thread: 12, ActiveCallback: 1, Memory: 18,223,104, Memory Average: 18,223,104/18,051,085 ","threadCount":12,"activeCallback":1,"memory":18223104,"shortavg":18223104,"longavg":18051085}}`
+
+As the log line stands right now it is ill-fit for a human operator. The `Message` fields is basically a summary of some of the other fields and represents a nice overview. Our parser will instead present this line in Humio:
+
+`2019-02-26 11:40:51.050 | 4 | Microsoft-ServiceFabric | PerfMonitor | 1284 | Thread: 12, ActiveCallback: 1, Memory: 18,223,104, Memory Average: 18,223,104/18,051,085`
+
+In other words, timestamp followed by level, providername, eventname, eventid and message.
+The parser code is straightforward:
+
+ ```pascal
+parseJson() 
+| @timestamp := parseTimestamp(field=timestamp)
+| @display := format(format="%s | %s | %s | %s ", field=[providerName, payload.ID, payload.EventName, payload.Message])
+| kvParse()
+ ```
+
+
 
 ### Collect and ship - Solution
 
@@ -130,6 +161,7 @@ parser in the dropdown 'Assigned Parser' next to the Ingest Token.
 Starting filebeat can be done with e.g. `filebeat.exe -e -c filebeat.yml`. The `-e` flag instructs filebeat to log to the console which is usefull 
 when experimenting with the configuration.
 
+
 ### Query and analyze - Solution
 
 Let's take a look at a simple free text search in Humio:
@@ -142,9 +174,17 @@ Let's say we want to plot the average number of user sessions the last hour:
 
 ![sum() timechart](images/sum-timechart.png)
 
-Notice the `Properties.UserSessions'. This is a structured part of the Serilog log line that allows for easy analysis.
+Notice the `Properties.UserSessions`. This is a structured part of the Serilog log line that allows for easy analysis.
+For any unstructured part of your log data that isn't turned into a property on your events overwise the parser, Humio allows for 
+extracting the data using regular expressions which are then added as one or more fields to the events in question. 
+This can 
+
 
 // TODO: or want the days where we at some point had less than..
+
+
+Humio never rejects incoming logs, even logs it for some reason cannot parse. Doing the search `@error=* | groupBy(@error_msg)` will reveal any events that haven't been properly parsed and group them by reason.
+
 
 ## Repo Structure
 
