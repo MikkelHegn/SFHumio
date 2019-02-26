@@ -22,8 +22,8 @@
   "outputs": [
     {
       "type": "ElasticSearch",
-      "serviceUri": "https://ops.humio.com/api/v1/ingest/elastic-bulk",
-      "basicAuthenticationUserName": "guF8kIopxa5GoDekDh3EoqVnyanLqIuX2Jp4LnCQRSPw",
+      "serviceUri": "https://cloud.humio.com/api/v1/ingest/elastic-bulk",
+      "basicAuthenticationUserName": "Zklb8BYv5PihLm74BoZHz0XyxFvXA6H49lrfsQxJjb3i",
       "basicAuthenticationUserPassword": "Blah"
     }
   ],

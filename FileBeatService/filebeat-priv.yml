@@ -6,8 +6,8 @@ filebeat.inputs:
   encoding: utf-8
 
 output.elasticsearch:
-  hosts: ["https://ops.humio.com:443/api/v1/ingest/elastic-bulk"]
-  username: "EHUpRswQ6OcnMlWsKyReU6KWwxdB6kPvhUdvrJZCXcpt"
+  hosts: ["https://cloud.humio.com/api/v1/ingest/elastic-bulk"]
+  username: "k1EFCgAXLsEfFBsWcdvtoao14HiGFFUY0LDYj5TvqEuj"
   compression_level: 5
   bulk_max_size: 200
   worker: 1

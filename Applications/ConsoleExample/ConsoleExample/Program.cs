@@ -15,13 +15,12 @@ namespace ConsoleExample
         static int Main(string[] args)
         {
             var instanceId = Guid.NewGuid().ToString("N");
-            var log = Path.Combine("log", $"ConsoleExample-{instanceId}.log"); // TODO: get from config.. env vars? 
+            var log = Path.Combine("log", $"ConsoleExample-{instanceId}.log");
 
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .Enrich.With(new ServiceFabricEnricher())
                 .WriteTo.File(formatter: new JsonFormatter(renderMessage: true), path: log, rollingInterval: RollingInterval.Day)
-              //  .WriteTo.File(formatter : new RenderedCompactJsonFormatter(), path: log, rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
             try
@@ -33,12 +32,7 @@ namespace ConsoleExample
                     int i = random.Next(100, 120);
                     Log.Information("Number of user sessions {@UserSessions}", i);
 
-                   // Log.Error(new Exception("arargg"), "Terminated unexpectedly");
-
                     var position = new { Latitude = 25, Longitude = 134 };
-                //    var elapsedMs = 34;
-
-                    //Log.Information("Processed {@Position} in {Elapsed:000} ms.", position, elapsedMs);
 
                     if (i == 120)
                     {
