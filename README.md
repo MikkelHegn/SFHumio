@@ -169,6 +169,8 @@ when experimenting with the configuration.
 
 ### Query and analyze - Solution
 
+#### Application logs
+
 Let's take a look at a simple free text search in Humio:
 
 ![freetext search](images/search-freetext.png)
@@ -190,7 +192,43 @@ This can
 
 Humio never rejects incoming logs, even logs it for some reason cannot parse. Doing the search `@error=* | groupBy(@error_msg)` will reveal any events that haven't been properly parsed and group them by reason.
 
+#### Service fabric platform events
 
+##### Node down!
+
+Service fabric node activity can be detected by looking at [Node lifecycle events](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-diagnostics-event-generation-operational#node-events).
+
+The following query visualizes the amount of node activity in the cluster the last 24 hours:
+
+```pascal
+#type=servicefabric-platform payload.eventName=Node* | timechart(series=payload.eventName)
+```
+
+![freetext search](images/node-activity1.png)
+
+With the following approach we group node activity by the name of the node and collect all activity events into a single field which gives us
+a nice overview.
+
+![freetext search](images/node-activity2.png)
+
+While we can try and infer node health given the activity service fabric also provides [health reports](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-health-introduction).
+
+// TODO: how do we query that node is down, and hasn't come up yet.
+// See #type=servicefabric-platform payload.ID=18601
+// Or #type=servicefabric-platform (payload.eventName=NodeDown OR payload.eventName=NodeUp) payload.eventName=* | groupby(payload.nodeName, function=collect(fields=payload.eventName))
+
+// TODO: healthreports with warning or error. reports are continously
+// being generated untill problem is fixed.
+
+// link to https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-health-introduction
+
+
+
+// TODO: quorom loss in seed nodes (health report)
+
+// TODO: applications that cannot scale as needed because of nodes down
+
+##### 
 
 ## Repo Structure
 
