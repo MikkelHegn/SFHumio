@@ -2,7 +2,7 @@ filebeat.inputs:
 - type: log
   enabled: true
   paths:
-    - "D:\\SvcFab\\_App\\**\\log\\*.log"
+    - "D:\\SvcFab\\_App\\*\\work\\log\\*.log"
   encoding: utf-8
 
 output.elasticsearch:

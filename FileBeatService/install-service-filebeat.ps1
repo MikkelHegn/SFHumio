@@ -6,6 +6,8 @@ if (Get-Service filebeat -ErrorAction SilentlyContinue) {
   $service.delete()
 }
 
+Remove-Item C:\ProgramData\filebeat -Force -Recurse
+
 $workdir = Split-Path $MyInvocation.MyCommand.Path
 
 # Create the new service.
