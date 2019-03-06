@@ -1,7 +1,6 @@
 ﻿using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Formatting.Compact;
 using Serilog.Formatting.Json;
 using System;
 using System.Diagnostics;
@@ -14,13 +13,16 @@ namespace ConsoleExample
     {
         static int Main(string[] args)
         {
-            var instanceId = Guid.NewGuid().ToString("N");
-            var log = Path.Combine("log", $"ConsoleExample-{instanceId}.log");
+            var log = Path.Combine("log", $"ConsoleExample.log");
 
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .Enrich.With(new ServiceFabricEnricher())
-                .WriteTo.File(formatter: new JsonFormatter(renderMessage: true), path: log, rollingInterval: RollingInterval.Day)
+                .WriteTo.File(
+                    formatter: new JsonFormatter(renderMessage: true),
+                    path: log,
+                    retainedFileCountLimit: 5,
+                    shared: true)
                 .CreateLogger();
 
             try
@@ -59,30 +61,36 @@ namespace ConsoleExample
         }
     }
 
-
     public class ServiceFabricEnricher : ILogEventEnricher
     {
+        private static readonly string instanceId = Guid.NewGuid().ToString();
+        private static readonly string processId = Process.GetCurrentProcess().Id.ToString();
+        private static readonly string node = Environment.GetEnvironmentVariable("Fabric_NodeName");
+        private static readonly string service = Environment.GetEnvironmentVariable("Fabric_ServiceName");
+        private static readonly string application = Environment.GetEnvironmentVariable("Fabric_ApplicationName");
+
         public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
         {
-            var node = Environment.GetEnvironmentVariable("Fabric_NodeName");
+            if (!string.IsNullOrWhiteSpace(instanceId))
+            {
+                logEvent.AddPropertyIfAbsent(new LogEventProperty("InstanceId", new ScalarValue(instanceId)));
+            }
+
             if (!string.IsNullOrWhiteSpace(node))
             {
                 logEvent.AddPropertyIfAbsent(new LogEventProperty("Fabric_NodeName", new ScalarValue(node)));
             }
 
-            var service = Environment.GetEnvironmentVariable("Fabric_ServiceName");
             if (!string.IsNullOrWhiteSpace(service))
             {
                 logEvent.AddPropertyIfAbsent(new LogEventProperty("Fabric_ServiceName", new ScalarValue(service)));
             }
 
-            var application = Environment.GetEnvironmentVariable("Fabric_ApplicationName");
             if (!string.IsNullOrWhiteSpace(application))
             {
                 logEvent.AddPropertyIfAbsent(new LogEventProperty("Fabric_ApplicationName", new ScalarValue(application)));
             }
 
-            var processId = Process.GetCurrentProcess().Id.ToString();
             if (!string.IsNullOrWhiteSpace(processId))
             {
                 logEvent.AddPropertyIfAbsent(new LogEventProperty("ProcessId", new ScalarValue(processId)));
