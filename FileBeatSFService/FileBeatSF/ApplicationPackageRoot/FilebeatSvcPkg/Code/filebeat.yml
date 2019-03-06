@@ -18,7 +18,7 @@ filebeat.inputs:
 
 output.elasticsearch:
   hosts: ["https://cloud.humio.com/api/v1/ingest/elastic-bulk"]
-  username: "k1EFCgAXLsEfFBsWcdvtoao14HiGFFUY0LDYj5TvqEuj"
+  username: "<token>"
   compression_level: 5
   bulk_max_size: 200
   worker: 1
