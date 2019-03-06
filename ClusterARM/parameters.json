@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "clusterName": {
-            "value": "humio2"
+            "value": ""
         },
         "clusterLocation": {
             "value": "westeurope"
@@ -12,43 +12,43 @@
             "value": "westeurope"
         },
         "adminUserName": {
-            "value": "master"
+            "value": ""
         },
         "nicName": {
-            "value": "NIC-humio"
+            "value": ""
         },
         "publicIPAddressName": {
-            "value": "humio-PubIP"
+            "value": ""
         },
         "dnsName": {
-            "value": "humio2"
+            "value": ""
         },
         "virtualNetworkName": {
-            "value": "VNet-humio"
+            "value": ""
         },
         "lbName": {
-            "value": "LB-humio"
+            "value": ""
         },
         "lbIPName": {
-            "value": "LBIP-humio"
+            "value": ""
         },
         "applicationDiagnosticsStorageAccountName": {
-            "value": "sfdghumio762222"
+            "value": ""
         },
         "supportLogStorageAccountName": {
-            "value": "sflogshumio418022"
+            "value": ""
         },
         "sourceVaultValue": {
-            "value": "/subscriptions/c484c80e-0a6f-4470-86de-697ecee16984/resourceGroups/KeyVault/providers/Microsoft.KeyVault/vaults/westeuropevault"
+            "value": ""
         },
         "certificateUrlValue": {
-            "value": "https://westeuropevault.vault.azure.net/secrets/humio/0b28baf9b84848d1bd9440215877c950"
+            "value": ""
         },
         "certificateThumbprint": {
-            "value": "3B98AD570490CC31846B60D31138C3EE019375B4"
+            "value": ""
         },
         "vmImageSku": {
-            "value": "Datacenter-Core-1709-with-Containers-smalldisk"
+            "value": "Datacenter-Core-1803-with-Containers-smalldisk"
         },
         "vmImageOffer": {
             "value": "WindowsServerSemiAnnual"
@@ -70,6 +70,12 @@
         },
         "nt0fabricHttpGatewayPort": {
             "value": 19080
+        },
+        "nt0fabricHttpAppPort": {
+            "value": 80
+        },
+        "clusterMonitor_artifactsLocation": {
+            "value": ""
         }
     }
 }

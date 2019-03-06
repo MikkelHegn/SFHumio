@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "clusterName": {
-            "value": "humio"
+            "value": "humio7"
         },
         "clusterLocation": {
             "value": "westeurope"
@@ -21,7 +21,7 @@
             "value": "humio-PubIP"
         },
         "dnsName": {
-            "value": "humio"
+            "value": "humio7"
         },
         "virtualNetworkName": {
             "value": "VNet-humio"
@@ -33,10 +33,10 @@
             "value": "LBIP-humio"
         },
         "applicationDiagnosticsStorageAccountName": {
-            "value": "sfdghumio764222"
+            "value": "sfdghuasfmd22"
         },
         "supportLogStorageAccountName": {
-            "value": "sflogshumio416022"
+            "value": "sflasfa22"
         },
         "sourceVaultValue": {
             "value": "/subscriptions/c484c80e-0a6f-4470-86de-697ecee16984/resourceGroups/KeyVault/providers/Microsoft.KeyVault/vaults/westeuropevault"
@@ -73,6 +73,9 @@
         },
         "nt0fabricHttpAppPort": {
             "value": 80
+        },
+        "clusterMonitor_artifactsLocation": {
+            "value": "https://mikhegn.blob.core.windows.net/temp/"
         }
     }
 }
