@@ -232,8 +232,7 @@
             "type": "string",
             "metadata": {
               "description": "The root location of ClusterMonitor artifacts."
-            },
-            "defaultValue": "https://raw.githubusercontent.com/MikkelHegn/SFHumio/master/ClusterMonitor/"
+            }
           }
     },
     "variables": {
@@ -252,10 +251,7 @@
         "lbAppProbeID0": "[concat(variables('lbID0'),'/probes/FabricAppProbe')]",
         "lbNatPoolID0": "[concat(variables('lbID0'),'/inboundNatPools/LoadBalancerBEAddressNatPool')]",
         "vmStorageAccountName0": "[toLower(concat(uniqueString(resourceGroup().id), '1', '0' ))]",
-        "clusterMonitor_scriptFileName": "InstallClusterMonitor.ps1",
-        "clusterMonitor_packageDownloadURL": "[concat(' -downloadUrlScript ', variables('clusterMonitor_artifactsLocation', 'ClusterMonitor.zip')",
-        "clusterMonitor_configDownloadURL": "[concat(' -downloadUrlScript ', variables('clusterMonitor_artifactsLocation', 'eventFlowConfig-config.json')",
-        "clusterMonitor_scriptParameters": "[concat(variables('clusterMonitor_packageDownloadURL'), ' ', variables('clusterMonitor_configDownloadURL'))]"
+        "clusterMonitor_scriptParameters": "[concat(' -downloadUrlScript ',parameters('clusterMonitor_artifactsLocation'),'ClusterMonitor.zip -downloadUrlConfig ',parameters('clusterMonitor_artifactsLocation'),'eventFlowConfig-priv.json')]"
     },
     "resources": [
         {
@@ -568,14 +564,13 @@
                                   "forceUpdateTag": "1.0",
                                   "settings": {
                                     "fileUris": [
-                                        "[concat(parameters('clusterMonitor_artifactsLocation'), variables('clusterMonitor_scriptFileName'))]"
-                                    ]
+                                        "[concat(parameters('clusterMonitor_artifactsLocation'),'InstallClusterMonitor.ps1')]"
+                                    ],
+                                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File InstallClusterMonitor.ps1' , variables('clusterMonitor_scriptParameters'))]"
                                   },
                                   "typeHandlerVersion": "1.8",
                                   "autoUpgradeMinorVersion": true,
-                                  "protectedSettings": {
-                                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('clusterMonitor_scriptFileName'), ' ', variables('clusterMonitor_scriptParameters'))]"
-                                  },
+                                  "protectedSettings": {},
                                   "type": "CustomScriptExtension"
                                 }
                               }
