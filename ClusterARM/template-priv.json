@@ -561,7 +561,7 @@
                                 "name": "[concat('ClusterMonitorExt','_vmNodeType0Name')]",
                                 "properties": {
                                   "publisher": "Microsoft.Compute",
-                                  "forceUpdateTag": "1.0",
+                                  "forceUpdateTag": "2.0",
                                   "settings": {
                                     "fileUris": [
                                         "[concat(parameters('clusterMonitor_artifactsLocation'),'InstallClusterMonitor.ps1')]"
