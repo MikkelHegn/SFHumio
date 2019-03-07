@@ -9,7 +9,7 @@ This repo contains source and guides on how to use Humio together with Service F
 **_Disclaimer_**
 
 Not a full solution, just a set of examples - refer to SF docs on how to monitor Service Fabric.
-
+<!---
 ## Problem
 
 Three layers...
@@ -44,11 +44,11 @@ Three phases...
 - Runtime
     - ETW Providers
 - Applications
-    - .net core console: SeriLog --> Files
-    - asp.net core: ILogger --> ILoggerProvider for EventSources
+    - .net core console: SeriLog -> Files
+    - asp.net core: ILogger -> ILoggerProvider for EventSources
 
 #### 
-
+--->
 
 #### Serilog
 
@@ -86,11 +86,10 @@ lasting bursts of log lines.
 Next, head up to https://cloud.humio.com and create a free account. Alternatively, you can run Humio on your own hardware. See 
 https://docs.humio.com/installation/.
 
-// TODO: 
 
 #### Service Fabric Platform Events
 
-// TODO: this should probably be after introduction to Humios query language..
+<!-- // TODO: this should probably be after introduction to Humios query language.. -->
 
 ### Parser
 
@@ -120,7 +119,7 @@ The result is then piped into parsing of the timestamp field which is assigned t
 Creating a new parser in Humio means going to the repository used for ingesting data, selecting 'Parsers' in the menu and clicking 'New parser'. 
 Afterwards the parser should be assigned to the ingest token to be used, which is done under 'Settings' in the menu and then clicking 'Ingest API Tokens'. You can then change the 'Assigned Parser' through a dropdown box.
 
-
+<!-- 
 ### Collect and ship - Solution
 
 - ClusterMonitor
@@ -129,6 +128,7 @@ Afterwards the parser should be assigned to the ingest token to be used, which i
     - Performance Counters
 - FileBeat
     - Files
+-->
 
 #### Filebeat
 
@@ -186,8 +186,8 @@ For any unstructured part of your log data that isn't turned into a property on 
 extracting the data using regular expressions which are then added as one or more fields to the events in question. 
 This can 
 
-
-// TODO: or want the days where we at some point had less than..
+<!--
+// TODO: or want the days where we at some point had less than.. -->
 
 
 Humio never rejects incoming logs, even logs it for some reason cannot parse. Doing the search `@error=* | groupBy(@error_msg)` will reveal any events that haven't been properly parsed and group them by reason.
@@ -227,28 +227,43 @@ The same message also contains information about the number of nodes currently d
 #type=servicefabric-platform payload.ID=18601 | tail(1) | max(payload.nodeCountsdownNodeCount)
 ```
 
-In the 
+In the dropdown above the search text field we can select the widget type 'gauge'.
+We can save to a new or existing dashboard by clicking 'Save as..'
 
-![freetext search](images/node-activity3.png)
+![freetext search](images/node-activity4.png)
 
-// TODO: insert gauge widget screenshot
-
-
-// TODO: talk about kv parser
+<!--- talk about kv parser) --->
 
 While we can try and infer node health given the activity service fabric also provides [health reports](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-health-introduction). Health reports are also communicated as [health report events](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-diagnostics-event-generation-operational#health-reports).
 
+For a cluster that is having issues health reports can be a significant fraction of the total number of events:
+
+```pascal
+#type=servicefabric-platform | groupby(payload.category)
+````
+
+![freetext search](images/health-reports1.png)
+
+Clicking on `Health` in the above search result reveals amongst others the `NodeNewHealthReport`. Let's try and get an overview of those:
+
+```pascal
+#type="servicefabric-platform" 
+| payload.eventName = NodeNewHealthReport | groupby(field=[payload.description, payload.healthState])
+```
+![freetext search](images/health-reports2.png)
+
+According to the [documentation](https://docs.microsoft.com/en-us/dotnet/api/system.fabric.health.healthstate?view=azure-dotnet) `payload.healthState=3` is an `Error` and needs investigation. So settings up alerts for `#type="servicefabric-platform" payload.category=Health payload.healthState=3` is probably a good idea!
 
 
-// TODO: healthreports with warning or error. reports are continously
-// being generated untill problem is fixed.
+<!---   TODO: healthreports with warning or error. reports are continously
+being generated untill problem is fixed.) --->
 
 
 
 
-// TODO: quorom loss in seed nodes (health report)
+<!---  TODO: quorom loss in seed nodes (health report) --->
 
-// TODO: applications that cannot scale as needed because of nodes down
+<!--- TODO: applications that cannot scale as needed because of nodes down) --->
 
 ##### 
 
