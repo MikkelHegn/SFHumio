@@ -93,8 +93,12 @@ https://docs.humio.com/installation/.
 
 ### Parser
 
-For the ETW log lines produced by Service Fabric and shipped by EventFlow we are going to write a custom parser in Humio.
- Humio parsers are written in Humios query language. The Service Fabric log lines contains both structured and unstructured data.
+For the ETW log lines produced by Service Fabric and shipped by EventFlow we are going to write a custom parser in Humio. Parsers are written in Humios query language. 
+ 
+ Creating a new parser in Humio means going to the repository used for ingesting data, selecting 'Parsers' in the menu and clicking 'New parser'. 
+Afterwards the parser should be assigned to the ingest token to be used, which is done under 'Settings' in the menu and then clicking 'Ingest API Tokens'. You can then change the 'Assigned Parser' through a dropdown box.
+
+ The Service Fabric log lines contains both structured and unstructured data.
 Here's an example:
 
 `{"timestamp":"2019-02-26T10:40:51.0501913+00:00","providerName":"Microsoft-ServiceFabric","level":4,"keywords":1152921504606846977,"payload":{"ID":1284,"EventName":"PerfMonitor","Message":"Thread: 12, ActiveCallback: 1, Memory: 18,223,104, Memory Average: 18,223,104/18,051,085 ","threadCount":12,"activeCallback":1,"memory":18223104,"shortavg":18223104,"longavg":18051085}}`
@@ -114,10 +118,9 @@ parseJson()
  ```
 
 We start out by calling `parseJson()` which parses the log line as json and makes the json members available as fields on our event. 
-The result is then piped into parsing of the timestamp field which is assigned to a new `@timestamp` field. Humio interprets `@timestamp' as the event time, so it's essential to get right. If we do not want to display the raw log line in Humio, in this case json, the '@display' field can be set to some formatted string. We finish the parsing by extracting any key value pairs from the original log line.
+The result is then piped into parsing of the timestamp field which is assigned to a new `@timestamp` field. Humio interprets `@timestamp` as the event time, so it's essential to get right. If we do not want to display the raw log line in Humio, in this case json, the '@display' field can be set to some formatted string. We finish the parsing by extracting any key value pairs, e.g. `foo=bar`, from the original log line.
 
-Creating a new parser in Humio means going to the repository used for ingesting data, selecting 'Parsers' in the menu and clicking 'New parser'. 
-Afterwards the parser should be assigned to the ingest token to be used, which is done under 'Settings' in the menu and then clicking 'Ingest API Tokens'. You can then change the 'Assigned Parser' through a dropdown box.
+
 
 <!-- 
 ### Collect and ship - Solution
@@ -182,9 +185,8 @@ Let's say we want to plot the average number of user sessions the last hour:
 ![sum() timechart](images/sum-timechart.png)
 
 Notice the `Properties.UserSessions`. This is a structured part of the Serilog log line that allows for easy analysis.
-For any unstructured part of your log data that isn't turned into a property on your events overwise the parser, Humio allows for 
-extracting the data using regular expressions which are then added as one or more fields to the events in question. 
-This can 
+For any unstructured part of your log data that isn't turned into a property on your events by the parser, Humio allows for 
+extracting the data using regular expressions which are then added as one or more fields to the events in question. See the query function [regex()](https://docs.humio.com/query-functions/#regex) for more information.
 
 <!--
 // TODO: or want the days where we at some point had less than.. -->
@@ -207,7 +209,7 @@ The following query visualizes the different node activities happening in the cl
 
 
 With the following approach we group node activity by the name of the node and collect all activity events into a single field which gives us
-a nice overview. 
+a nice overview of the different activities related to a node.
 
 ```pascal
 #type=servicefabric-platform payload.eventName=Node* payload.eventName=* | groupby(payload.nodeName, function=collect(fields=payload.eventName))
@@ -215,7 +217,7 @@ a nice overview.
 
 ![freetext search](images/node-activity2.png)
 
-Digging around the events from service fabric reveals an interesting event type that we can use to build a few gauges related to node state. (link to widgets doc):
+Digging around the events from service fabric reveals an interesting event type that we can use to build a few [gauges](https://docs.humio.com/widgets/gauge/) related to node state. 
 
 ```pascal
 #type=servicefabric-platform payload.ID=18601 | tail(1) | max(payload.nodeCountsdeactivatedNodes)
@@ -234,7 +236,7 @@ We can save to a new or existing dashboard by clicking 'Save as..'
 
 <!--- talk about kv parser) --->
 
-While we can try and infer node health given the activity service fabric also provides [health reports](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-health-introduction). Health reports are also communicated as [health report events](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-diagnostics-event-generation-operational#health-reports).
+While we can try and infer node health given the node activity service fabric also provides [health reports](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-health-introduction). Health reports are also communicated as [health report events](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-diagnostics-event-generation-operational#health-reports).
 
 For a cluster that is having issues health reports can be a significant fraction of the total number of events:
 
