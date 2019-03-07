@@ -198,29 +198,51 @@ Humio never rejects incoming logs, even logs it for some reason cannot parse. Do
 
 Service fabric node activity can be detected by looking at [Node lifecycle events](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-diagnostics-event-generation-operational#node-events).
 
-The following query visualizes the amount of node activity in the cluster the last 24 hours:
+The following query visualizes the different node activities happening in the cluster the last 24 hours:
 
 ```pascal
 #type=servicefabric-platform payload.eventName=Node* | timechart(series=payload.eventName)
 ```
-
 ![freetext search](images/node-activity1.png)
 
+
 With the following approach we group node activity by the name of the node and collect all activity events into a single field which gives us
-a nice overview.
+a nice overview. 
+
+```pascal
+#type=servicefabric-platform payload.eventName=Node* payload.eventName=* | groupby(payload.nodeName, function=collect(fields=payload.eventName))
+```
 
 ![freetext search](images/node-activity2.png)
 
-While we can try and infer node health given the activity service fabric also provides [health reports](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-health-introduction).
+Digging around the events from service fabric reveals an interesting event type that we can use to build a few gauges related to node state. (link to widgets doc):
 
-// TODO: how do we query that node is down, and hasn't come up yet.
-// See #type=servicefabric-platform payload.ID=18601
-// Or #type=servicefabric-platform (payload.eventName=NodeDown OR payload.eventName=NodeUp) payload.eventName=* | groupby(payload.nodeName, function=collect(fields=payload.eventName))
+```pascal
+#type=servicefabric-platform payload.ID=18601 | tail(1) | max(payload.nodeCountsdeactivatedNodes)
+```
+
+The same message also contains information about the number of nodes currently down:
+
+```pascal
+#type=servicefabric-platform payload.ID=18601 | tail(1) | max(payload.nodeCountsdownNodeCount)
+```
+
+In the 
+
+![freetext search](images/node-activity3.png)
+
+// TODO: insert gauge widget screenshot
+
+
+// TODO: talk about kv parser
+
+While we can try and infer node health given the activity service fabric also provides [health reports](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-health-introduction). Health reports are also communicated as [health report events](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-diagnostics-event-generation-operational#health-reports).
+
+
 
 // TODO: healthreports with warning or error. reports are continously
 // being generated untill problem is fixed.
 
-// link to https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-health-introduction
 
 
 
