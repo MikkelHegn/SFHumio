@@ -97,7 +97,7 @@ The parser code we end up with is:
  ```
 
 We start out by calling `parseJson()` which parses the log line as json and makes the json members available as fields on our [event](https://docs.humio.com/concepts/events/).
-The result is then piped into parsing of the timestamp field which is assigned to a new `@timestamp` field. Humio interprets `@timestamp` as the event time, so it's essential to get right. If we do not want to display the raw log line in Humio, in this case json, the '@display' field can be set to some formatted string. We finish the parsing by extracting any key value pairs, e.g. `foo=bar`, from the original log line.
+The result is then piped into parsing of the timestamp field which is assigned to a new `@timestamp` field. Humio interprets `@timestamp` as the event time, so it's essential to get right. If we do not want to display the raw log line in Humio, in this case json, the [@display](https://docs.humio.com/concepts/events/) field can be set to some formatted string. We finish the parsing by extracting any key value pairs, e.g. `foo=bar`, from the original log line.
 
 ### Applications
 
@@ -136,7 +136,7 @@ Log.Logger = new LoggerConfiguration()
                 .CreateLogger();
 ```
 
-Note the `renderMessage: true` part of the configuration. This instructs Serilog to render the message as part of the formatted log output which ends up in our log files. We are going to exploit the same @display feature in Humio which allows us to display the rendered message instead of the raw json data. This makes it easier for a human to process the log lines. All data is still available though, for searching and inspection etc. in Humio. 
+Note the `renderMessage: true` part of the configuration. This instructs Serilog to render the message as part of the formatted log output which ends up in our log files. As before we will use the @display feature in Humio which allows us to display the rendered message instead of the raw json data. This makes it easier for a human to process the log lines. All data is still available though, for searching and inspection etc. in Humio. 
 
 Our `ServiceFabricEnricher` class enriches our log lines with information from the node which he application instance is running on:
 
