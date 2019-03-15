@@ -30,21 +30,20 @@ As an example, there are various metrics and logs we want to collect on all thre
 | Applications | Serilog for .net core outputting to log files | Filebeat | Humio |
 
 
-For the infrastructure layer which we are not covering in this article, we suggest taking at look at [metricbeat](https://www.elastic.co/products/beats/metricbeat) and [winlogbeat](https://www.elastic.co/downloads/beats/winlogbeat). Humio offers excellent compression of ingested data (10x) and maintains no indices that take up your disk space and slows down your ingest. Supporting the philosophy of *logging everything*.
+For the infrastructure layer which we are not covering in this article, we suggest taking a look at [metricbeat](https://www.elastic.co/products/beats/metricbeat) and [winlogbeat](https://www.elastic.co/downloads/beats/winlogbeat). Humio offers excellent compression of ingested data (10x) and maintains no indices that take up your disk space and slows down your ingest. Supporting the philosophy of *logging everything*.
 
 ## The solution
 
-In this sections we will go over the different components and how we have used them in this setup.
-
+In this section we will go over the different components and how we have used them in this setup.
+<!---
 ### Infrastructure
 
 Let's start at the bottom... The hardware and the Windows OS, which make up our Service Fabric cluster, emits logs and events and performance counters we can pick up using any agent built for this purpose. In Azure, you could use Azure Monitor, in an on-premises setup, you can use the Microsoft Management Agent and push the information to OMS or similar solution.
 
 We have not covered this layer as part of this solution, as most organizations already have a standardized way of monitoring infrastructure. For monitoring a Service Fabric cluster, this layer does not add any specific requirements, hence doesn't require any specific solution.
 
-<!---  TODO: note about metricbeat which supports e.g. performance counters and winlog beat for systems logs etc!--->
-
-<!---  TODO: humios philosphy of collect all the logs! (e.g. winlogbeat) and our compresssion ratio     --->
+    
+--->
 
 ### Platform
 
