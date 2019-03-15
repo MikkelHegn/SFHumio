@@ -127,7 +127,7 @@ Log.Logger = new LoggerConfiguration()
 
 Note the `renderMessage: true` part of the configuration. This instructs Serilog to render the message as part of the formatted log output which ends up in our log files. We are going to exploit the same @display feature in Humio which allows us to display the rendered message instead of the raw json data. This makes it easier for a human to process the log lines. All data is still available though, for searching and inspection etc. in Humio. 
 
-Our `ServiceFabricEnricher` class enriches our log lines with information from the node which the application instance is running on:
+Our `ServiceFabricEnricher` class enriches our log lines with information from the node which he application instance is running on:
 
 ```csharp
  public class ServiceFabricEnricher : ILogEventEnricher
@@ -199,13 +199,13 @@ output.elasticsearch:
 We need to get the `INGEST_TOKEN` from Humio. A default ingest token is configured for your log repository in Humio. Log in to Humio, go to your log repository, click Settings and then Ingest API Tokens' and either retrieve the default or create a new one.
 When you send logs and metrics to Humio for ingestion it needs to be parsed before it is stored in a repository. Humio has a built-in parser for Serilog that is configured as above. Make sure the Serilog parser is selected for the ingest token used. This is done by selecting the parser in the dropdown 'Assigned Parser' next to the Ingest Token.
 
-Starting filebeat can be done with e.g. `filebeat.exe -e -c filebeat.yml`. The `-e` flag instructs filebeat to log to the console which is useful when experimenting with the configuration.
+If you are experimenting with filebeat from the commandline start filebeat with `filebeat.exe -e -c filebeat.yml`. The `-e` flag instructs filebeat to log to the console which is useful when experimenting with the configuration.
 
 ### Query and analyze
 
-This section contains a some examples of using the humio query language to analyze and visualize the data.
+This section contains some examples of using the humio query language to analyze and visualize the data.
 
-#### Application logs
+#### Searching application logs
 
 Let's take a look at a simple free text search in Humio:
 
@@ -217,16 +217,29 @@ Let's say we want to plot the average number of user sessions the last hour:
 
 ![sum() timechart](images/sum-timechart.png)
 
+The query pipes events containing `sessions` (via the ```|``` operator) into the `timechart` query function which uses the `avg` function. Consult the docs for more on [language syntax](https://docs.humio.com/language-syntax/) and [query functions](https://docs.humio.com/query-functions/). 
+
 Notice the `Properties.UserSessions`. This is a structured part of the Serilog log line that allows for easy analysis.
-For any unstructured part of your log data that isn't turned into a property on your events by the parser, Humio allows for extracting the data using regular expressions which are then added as one or more fields to the events in question. See the query function [regex()](https://docs.humio.com/query-functions/#regex) for more information.
+For any unstructured part of your log data that isn't turned into a property on your events by the parser, Humio allows for extracting the data using regular expressions which are then added as one or more fields to the events in question. See the query function [regex()](https://docs.humio.com/query-functions/#regex) for more information. 
 
 <!-- // TODO: or want the days where we at some point had less than.. -->
 
+Often we wan't to get an overview of exceptions being thrown by our applications:
+
+```pascal
+Level=Error | groupby(field=[Properties.Fabric_ApplicationName, Exception])
+```
+
+The query groups exceptions by application name and exception message. Getting a total count of application exceptions can be achieved by:
+```
+Level=Error | count()
+```
+
 Humio never rejects incoming logs, even logs it for some reason cannot parse. Doing the search `@error=* | groupBy(@error_msg)` will reveal any events that haven't been properly parsed and group them by reason.
 
-#### Service fabric platform events
 
-##### Node down
+
+#### Searching Service Fabric Platform Events
 
 Service fabric node activity can be detected by looking at [Node lifecycle events](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-diagnostics-event-generation-operational#node-events).
 
@@ -247,7 +260,7 @@ a nice overview of the different activities related to a node.
 
 ![freetext search](images/node-activity2.png)
 
-Digging around the events from service fabric reveals an interesting event type that we can use to build a few [gauges](https://docs.humio.com/widgets/gauge/) related to node state.
+Digging around in the logs from Service Fabric reveals an interesting event type that we can use to build a few [gauges](https://docs.humio.com/widgets/gauge/) related to node state.
 
 ```pascal
 #type=servicefabric-platform payload.ID=18601 | tail(1) | max(payload.nodeCountsdeactivatedNodes)
@@ -259,8 +272,8 @@ The same message also contains information about the number of nodes currently d
 #type=servicefabric-platform payload.ID=18601 | tail(1) | max(payload.nodeCountsdownNodeCount)
 ```
 
-In the dropdown above the search text field we can select the widget type 'gauge'.
-We can save to a new or existing dashboard by clicking 'Save as..'
+In the dropdown above the search text field we can select the widget type 'Gauge'.
+We can save to a new or existing [dashboard](https://docs.humio.com/concepts/dashboards/) by clicking 'Save as..'
 
 ![freetext search](images/node-activity4.png)
 
@@ -285,10 +298,10 @@ Clicking on `Health` in the above search result reveals amongst others the `Node
 
 ![freetext search](images/health-reports2.png)
 
-According to the [documentation](https://docs.microsoft.com/en-us/dotnet/api/system.fabric.health.healthstate?view=azure-dotnet) `payload.healthState=3` is an `Error` and needs investigation. So settings up alerts for `#type="servicefabric-platform" payload.category=Health payload.healthState=3` is probably a good idea!
+According to the [documentation](https://docs.microsoft.com/en-us/dotnet/api/system.fabric.health.healthstate?view=azure-dotnet) `payload.healthState=3` is an `Error` and needs investigation. So settings up [alerts](https://docs.humio.com/alerts/) for `#type="servicefabric-platform" payload.category=Health payload.healthState=3` is probably a good idea!
 
-<!--- TODO: healthreports with warning or error. reports are continuously being generated until problem is fixed.) --->
+Combining the knowledge we have gained from digging into our logs, we can build a Service Fabric cluster dashboard:
 
-<!--- TODO: quorum loss in seed nodes (health report) --->
+![freetext search](images/cluster-dashboard.png)
 
-<!--- TODO: applications that cannot scale as needed because of nodes down) --->
+See the
