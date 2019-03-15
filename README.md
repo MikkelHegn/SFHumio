@@ -39,7 +39,7 @@ As an example, there are various metrics and logs we want to collect on all thre
 | Applications | Serilog for .net core outputting to log files | Filebeat | Humio |
 
 
-For the infrastructure layer which we are not covering in this article, we suggest taking a look at [metricbeat](https://www.elastic.co/products/beats/metricbeat) and [winlogbeat](https://www.elastic.co/downloads/beats/winlogbeat) which also integrations with Humio. Humio offers excellent compression of ingested data (10x) and maintains no indices that take up your disk space and slows down your ingest. Supporting the philosophy of *logging everything*.
+For the infrastructure layer which we are not covering in this article, we suggest taking a look at [metricbeat](https://www.elastic.co/products/beats/metricbeat) and [winlogbeat](https://www.elastic.co/downloads/beats/winlogbeat) which also integrates with Humio. Humio offers excellent compression of ingested data (10x) and maintains no indices that take up your disk space and slows down your ingest. Supporting the philosophy of *logging everything*.
 
 ## The solution
 
@@ -70,7 +70,7 @@ Details for installing the service can be found in [Cluster Monitor Service](Clu
 
 #### Parsing Service Fabric Platform Events with Humio
 
-For the ETW log lines produced by Service Fabric and shipped by EventFlow we are going to write a custom parser in Humio. Parsers are written in Humios query language.
+For the ETW log lines produced by Service Fabric and shipped by EventFlow we are going to write a [custom parser](https://docs.humio.com/parsers/#creating-a-custom-parser) in Humio. Parsers are written in Humios query language.
 
 Creating a new parser in Humio means going to the repository used for ingesting data, selecting 'Parsers' in the menu and clicking 'New parser'.
 Afterwards the parser should be assigned to the ingest token to be used, which is done under 'Settings' in the menu and then clicking 'Ingest API Tokens'. You can then change the 'Assigned Parser' through a dropdown box.
