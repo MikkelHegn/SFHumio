@@ -39,6 +39,10 @@
             "type": "int",
             "defaultValue": 19080
         },
+        "nt0fabricHttpAppPort": {
+            "type": "int",
+            "defaultValue": 80
+        },
         "subnet0Name": {
             "type": "string",
             "defaultValue": "Subnet-0"
@@ -223,7 +227,13 @@
         "vmNodeType0Size": {
             "type": "string",
             "defaultValue": "Standard_D2_v2"
-        }
+        },
+        "clusterMonitor_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+              "description": "The root location of ClusterMonitor artifacts."
+            }
+          }
     },
     "variables": {
         "vmssApiVersion": "2017-03-30",
@@ -238,8 +248,10 @@
         "lbPoolID0": "[concat(variables('lbID0'),'/backendAddressPools/LoadBalancerBEAddressPool')]",
         "lbProbeID0": "[concat(variables('lbID0'),'/probes/FabricGatewayProbe')]",
         "lbHttpProbeID0": "[concat(variables('lbID0'),'/probes/FabricHttpGatewayProbe')]",
+        "lbAppProbeID0": "[concat(variables('lbID0'),'/probes/FabricAppProbe')]",
         "lbNatPoolID0": "[concat(variables('lbID0'),'/inboundNatPools/LoadBalancerBEAddressNatPool')]",
-        "vmStorageAccountName0": "[toLower(concat(uniqueString(resourceGroup().id), '1', '0' ))]"
+        "vmStorageAccountName0": "[toLower(concat(uniqueString(resourceGroup().id), '1', '0' ))]",
+        "clusterMonitor_scriptParameters": "[concat(' -downloadUrlScript ',parameters('clusterMonitor_artifactsLocation'),'ClusterMonitor.zip -downloadUrlConfig ',parameters('clusterMonitor_artifactsLocation'),'eventFlowConfig-priv.json')]"
     },
     "resources": [
         {
@@ -379,6 +391,25 @@
                             },
                             "protocol": "tcp"
                         }
+                    },
+                    {
+                        "name": "AppHttpRule",
+                        "properties": {
+                            "backendAddressPool": {
+                                "id": "[variables('lbPoolID0')]"
+                            },
+                            "backendPort": "[parameters('nt0fabricHttpAppPort')]",
+                            "enableFloatingIP": "false",
+                            "frontendIPConfiguration": {
+                                "id": "[variables('lbIPConfig0')]"
+                            },
+                            "frontendPort": "[parameters('nt0fabricHttpAppPort')]",
+                            "idleTimeoutInMinutes": "5",
+                            "probe": {
+                                "id": "[variables('lbAppProbeID0')]"
+                            },
+                            "protocol": "tcp"
+                        }
                     }
                 ],
                 "probes": [
@@ -399,7 +430,16 @@
                             "port": "[parameters('nt0fabricHttpGatewayPort')]",
                             "protocol": "tcp"
                         }
+                    },
+                    {
+                        "name": "FabricAppProbe",
+                        "properties": {
+                            "intervalInSeconds": 5,
+                            "numberOfProbes": 2,
+                            "port": "[parameters('nt0fabricHttpAppPort')]",
+                            "protocol": "tcp"
                     }
+                }
                 ],
                 "inboundNatPools": [
                     {
@@ -515,6 +555,23 @@
                                         "StorageAccount": "[parameters('applicationDiagnosticsStorageAccountName')]"
                                     },
                                     "typeHandlerVersion": "1.5"
+                                }
+                            },
+                            {
+                                "name": "[concat('ClusterMonitorExt','_vmNodeType0Name')]",
+                                "properties": {
+                                  "publisher": "Microsoft.Compute",
+                                  "forceUpdateTag": "1.0",
+                                  "settings": {
+                                    "fileUris": [
+                                        "[concat(parameters('clusterMonitor_artifactsLocation'),'InstallClusterMonitor.ps1')]"
+                                    ],
+                                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File InstallClusterMonitor.ps1' , variables('clusterMonitor_scriptParameters'))]"
+                                  },
+                                  "typeHandlerVersion": "1.8",
+                                  "autoUpgradeMinorVersion": true,
+                                  "protectedSettings": {},
+                                  "type": "CustomScriptExtension"
                                 }
                             }
                         ]

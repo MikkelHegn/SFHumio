@@ -1,0 +1,81 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "clusterName": {
+            "value": "humio7"
+        },
+        "clusterLocation": {
+            "value": "westeurope"
+        },
+        "computeLocation": {
+            "value": "westeurope"
+        },
+        "adminUserName": {
+            "value": "master"
+        },
+        "nicName": {
+            "value": "NIC-humio"
+        },
+        "publicIPAddressName": {
+            "value": "humio-PubIP"
+        },
+        "dnsName": {
+            "value": "humio7"
+        },
+        "virtualNetworkName": {
+            "value": "VNet-humio"
+        },
+        "lbName": {
+            "value": "LB-humio"
+        },
+        "lbIPName": {
+            "value": "LBIP-humio"
+        },
+        "applicationDiagnosticsStorageAccountName": {
+            "value": "sfdghuasfmd22"
+        },
+        "supportLogStorageAccountName": {
+            "value": "sflasfa22"
+        },
+        "sourceVaultValue": {
+            "value": "/subscriptions/c484c80e-0a6f-4470-86de-697ecee16984/resourceGroups/KeyVault/providers/Microsoft.KeyVault/vaults/westeuropevault"
+        },
+        "certificateUrlValue": {
+            "value": "https://westeuropevault.vault.azure.net/secrets/humio/0b28baf9b84848d1bd9440215877c950"
+        },
+        "certificateThumbprint": {
+            "value": "3B98AD570490CC31846B60D31138C3EE019375B4"
+        },
+        "vmImageSku": {
+            "value": "Datacenter-Core-1803-with-Containers-smalldisk"
+        },
+        "vmImageOffer": {
+            "value": "WindowsServerSemiAnnual"
+        },
+        "nt0ephemeralStartPort": {
+            "value": 49152
+        },
+        "nt0ephemeralEndPort": {
+            "value": 65534
+        },
+        "nt0applicationStartPort": {
+            "value": 20000
+        },
+        "nt0applicationEndPort": {
+            "value": 30000
+        },
+        "nt0fabricTcpGatewayPort": {
+            "value": 19000
+        },
+        "nt0fabricHttpGatewayPort": {
+            "value": 19080
+        },
+        "nt0fabricHttpAppPort": {
+            "value": 80
+        },
+        "clusterMonitor_artifactsLocation": {
+            "value": "https://mikhegn.blob.core.windows.net/temp/"
+        }
+    }
+}
