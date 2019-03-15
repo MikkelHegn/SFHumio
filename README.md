@@ -39,7 +39,7 @@ As an example, there are various metrics and logs we want to collect on all thre
 | Applications | Serilog for .net core outputting to log files | Filebeat | Humio |
 
 
-For the infrastructure layer which we are not covering in this article, we suggest taking a look at [metricbeat](https://www.elastic.co/products/beats/metricbeat) and [winlogbeat](https://www.elastic.co/downloads/beats/winlogbeat). Humio offers excellent compression of ingested data (10x) and maintains no indices that take up your disk space and slows down your ingest. Supporting the philosophy of *logging everything*.
+For the infrastructure layer which we are not covering in this article, we suggest taking a look at [metricbeat](https://www.elastic.co/products/beats/metricbeat) and [winlogbeat](https://www.elastic.co/downloads/beats/winlogbeat) which also integrations with Humio. Humio offers excellent compression of ingested data (10x) and maintains no indices that take up your disk space and slows down your ingest. Supporting the philosophy of *logging everything*.
 
 ## The solution
 
