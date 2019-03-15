@@ -107,8 +107,6 @@ For the [sample .net core application](Applications/ConsoleExample/README.md) in
 
 #### Serilog
 
-TODO: Update with enricher implementation...
-
 [Serilog](https://serilog.net) is a popular logging framework for .NET. Serilog is focused on *structured* logging.
 Doing structured logging means thinking about how the logs will be searched and analyzed afterwards. E.g. instrumenting a program with:
 
