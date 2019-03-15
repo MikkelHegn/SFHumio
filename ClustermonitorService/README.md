@@ -10,7 +10,7 @@ We choose to run this as a Windows Service, as it will monitor the Service Fabri
 
 The following procedure describes how to install or update the ClusterMonitor service, using the VMSS Custom Scripts Extension.
 
-1. Update eventFlowConfig.json (TODO: correct file?) with relevant Humio Ingest Token and serviceUri.
+1. Update eventFlowConfig.json with the Humio ingest token to be used and let 'serviceUri' point to your Humio cluster. If using Humio cloud that would be 'https://cloud.humio.com/api/v1/ingest/elastic-bulk'. 
 
 2. Upload the following files to a location, accessible through https:
     - InstallClusterMonitor.ps1

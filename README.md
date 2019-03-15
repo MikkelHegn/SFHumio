@@ -64,6 +64,8 @@ For the ETW log lines produced by Service Fabric and shipped by EventFlow we are
 Creating a new parser in Humio means going to the repository used for ingesting data, selecting 'Parsers' in the menu and clicking 'New parser'.
 Afterwards the parser should be assigned to the ingest token to be used, which is done under 'Settings' in the menu and then clicking 'Ingest API Tokens'. You can then change the 'Assigned Parser' through a dropdown box.
 
+The ingest token configured here is used together with Cluster Monitor Service described above.
+
  The Service Fabric log lines contains both structured and unstructured data.
 Here's an example:
 
