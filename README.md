@@ -96,7 +96,7 @@ The parser code we end up with is:
  | kvParse()
  ```
 
-We start out by calling `parseJson()` which parses the log line as json and makes the json members available as fields on our event.
+We start out by calling `parseJson()` which parses the log line as json and makes the json members available as fields on our [event](https://docs.humio.com/concepts/events/).
 The result is then piped into parsing of the timestamp field which is assigned to a new `@timestamp` field. Humio interprets `@timestamp` as the event time, so it's essential to get right. If we do not want to display the raw log line in Humio, in this case json, the '@display' field can be set to some formatted string. We finish the parsing by extracting any key value pairs, e.g. `foo=bar`, from the original log line.
 
 ### Applications
