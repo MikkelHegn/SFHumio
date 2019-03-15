@@ -19,17 +19,18 @@ The README.md file in the root (the one you are reading now), contains an overvi
 
 ## Logging when running distributed applications in a Service Fabric cluster
 
-In a Service Fabric setup, there are three layers of logging which needs to take place: infrastructure (servers etc.), platform (Service Fabric runtime) and applications (your distributed applications running in the cluster). For more information about these concepts, please refer to the [service fabric diagnostics overview](https://docs.microsoft.com/en-us/azure/service-fabric/).
+In a Service Fabric setup, there are three layers of logging which needs to take place: infrastructure (servers etc.), platform (Service Fabric runtime) and applications (your distributed applications running in the cluster). For more information about these concepts, please refer to the [service fabric diagnostics overview](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-diagnostics-overview).
 
 As an example, there are various metrics and logs we want to collect on all three layers, and we can use different collection methods to accomplish this. Typically by installing an agent. In the case of using Humio as a logging and monitoring tool for a Service Fabric installation, we are using the following components:
 
 | Layer | Instrument and Emit | Collect | Query and Analyze |
 | --- | --- | --- | --- |
-| Infrastructure | Hardware, Windows OS etc. using syslog, ETW, performance counters etc. (not our concern) | Not covered | Not covered |
-| Platform | Service Fabric cluster and runtime using ETW (not our concern) | ClusterMonitor service, using Microsoft.Diagnostics.EventFlow | Humio |
+| Infrastructure | Hardware, Windows OS etc. using syslog, ETW, performance counters etc. | Not covered | Not covered |
+| Platform | Service Fabric cluster and runtime using ETW  | ClusterMonitor service, using Microsoft.Diagnostics.EventFlow | Humio |
 | Applications | Serilog for .net core outputting to log files | Filebeat | Humio |
 
-You can swap any of the components that are our concerns, to build the logging and metrics pipelines we want. You could even consider different solutions for different applications.
+
+For the infrastructure layer which we are not covering in this article, we suggest taking at look at [metricbeat](https://www.elastic.co/products/beats/metricbeat) and [winlogbeat](https://www.elastic.co/downloads/beats/winlogbeat). Humio offers excellent compression of ingested data (10x) and maintains no indices that take up your disk space and slows down your ingest. Supporting the philosophy of *logging everything*.
 
 ## The solution
 
