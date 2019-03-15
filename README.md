@@ -25,7 +25,7 @@ For the complete solution these steps are involved:
 4. Creating a parser for the Service Fabric Events ingested by the Cluster Monitor Service. Make sure it's called 'servicefabric-platform'.
 4. Installing [filebeat](FileBeatSFService/README.md)
 
-
+For details, keep reading..
 
 ## Logging when running distributed applications in a Service Fabric cluster
 
