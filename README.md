@@ -1,6 +1,7 @@
 # SFHumio
 
-## Humio and MS / SF logos - insert here
+![Service Fabric](images/sf.png)
+![Service Fabric](images/humio.png)
 
 Azure Service Fabric is a distributed systems platform that makes it easy to package, deploy, and manage scalable and reliable microservices and containers. Developers and administrators can avoid complex infrastructure problems and focus on implementing mission-critical, demanding workloads that are scalable, reliable, and manageable.
 
