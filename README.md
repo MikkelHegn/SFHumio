@@ -13,13 +13,13 @@ The content in this repo is to be considered as examples of how you can build ou
 
 ## Repo overview
 
-The README.md file in the root (the one you are reading now), contains an overview of the solution. To replica the solution, following the instructions at in [this document](./SETUP.md), this will point out how to use the assets in the sub directories.
+The README.md file in the root (the one you are reading now), contains an overview of the solution. To replica the solution, follow the instructions in [How to setup the solution](./SETUP.md). This will point out how to use the assets in the sub directories.
 
 ## Logging when running distributed applications in a Service Fabric cluster
 
-In a Service Fabric setup, there are three layers of logging which needs to take place: infrastructure (servers etc.), platform (Service Fabric runtime) and applications (your distributed applications running in the cluster). For more information about these concepts, please refer to [this article](https://docs.microsoft.com/en-us/azure/service-fabric/)service-fabric-diagnostics-overview
+In a Service Fabric setup, there are three layers of logging which needs to take place: infrastructure (servers etc.), platform (Service Fabric runtime) and applications (your distributed applications running in the cluster). For more information about these concepts, please refer to the [service fabric diagnostics overview](https://docs.microsoft.com/en-us/azure/service-fabric/).
 
-As an example, there are various metrics and logs we want to collect on all three layers, and we can use different collection methods (agents) to solve these. In the case of using Humio as a logging and monitoring tool for a Service Fabric installation, we are using the following components:
+As an example, there are various metrics and logs we want to collect on all three layers, and we can use different collection methods to accomplish this. Typically by installing an agent. In the case of using Humio as a logging and monitoring tool for a Service Fabric installation, we are using the following components:
 
 | Layer | Instrument and Emit | Collect | Query and Analyze |
 | --- | --- | --- | --- |
@@ -39,14 +39,25 @@ Let's start at the bottom... The hardware and the Windows OS, which make up our 
 
 We have not covered this layer as part of this solution, as most organizations already have a standardized way of monitoring infrastructure. For monitoring a Service Fabric cluster, this layer does not add any specific requirements, hence doesn't require any specific solution.
 
+<!---  TODO: note about metricbeat which supports e.g. performance counters and winlog beat for systems logs etc!--->
+
+<!---  TODO: humios philosphy of collect all the logs! (e.g. winlogbeat) and our compresssion ratio     --->
+
 ### Platform
 
 #### Service Fabric Platform Events
 
-TODO: Write this paragraph
-<!-- // TODO: this should probably be after introduction to Humios query language.. -->
+>The Service Fabric platform writes several structured events for key operational activities happening within your cluster. These range from cluster upgrades to replica placement decisions. Each event that Service Fabric exposes maps to one of the following entities in the cluster: Cluster, Application, Service, Partition, Replica and Container. 
 
-#### Parsing data with Humio
+See [Service Fabric events](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-diagnostics-events) for full details.
+
+The platform events are collected by an, to the service fabric cluster itself, external service that runs on each machine participating in the cluster. 
+The service utilizes the [EventFlow diagnostics library] which have support for several Inputs and Outputs of different formats. In our case the relevant Input is ETW (Event Tracing for Windows) since the Service Fabric Platform Events are available as an ETW provider. The Output is ´ElasticSearch´. Humio has support for the Elasticsearch bulk API for easy integration with existing log shippers and agents.
+
+Details for installing the service can be found in [Cluster Monitor Service](ClustermonitorService/README.md).
+
+
+#### Parsing Service Fabric Platform Events with Humio
 
 For the ETW log lines produced by Service Fabric and shipped by EventFlow we are going to write a custom parser in Humio. Parsers are written in Humios query language.
 
