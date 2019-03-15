@@ -52,7 +52,7 @@ We have not covered this layer as part of this solution, as most organizations a
 See [Service Fabric events](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-diagnostics-events) for full details.
 
 The platform events are collected by an, to the service fabric cluster itself, external service that runs on each machine participating in the cluster. 
-The service utilizes the [EventFlow diagnostics library] which have support for several Inputs and Outputs of different formats. In our case the relevant Input is ETW (Event Tracing for Windows) since the Service Fabric Platform Events are available as an ETW provider. The Output is ´ElasticSearch´. Humio has support for the Elasticsearch bulk API for easy integration with existing log shippers and agents.
+The service utilizes the [EventFlow diagnostics library](https://github.com/Azure/diagnostics-eventflow) which have support for several Inputs and Outputs of different formats. In our case the relevant Input is ETW (Event Tracing for Windows) since the Service Fabric Platform Events are available as an ETW provider. The Output is ´ElasticSearch´. Humio has support for the Elasticsearch bulk API for easy integration with existing log shippers and agents.
 
 Details for installing the service can be found in [Cluster Monitor Service](ClustermonitorService/README.md).
 
@@ -74,7 +74,7 @@ As the log line stands right now it is ill-fit for a human operator. The `Messag
 `2019-02-26 11:40:51.050 | 4 | Microsoft-ServiceFabric | PerfMonitor | 1284 | Thread: 12, ActiveCallback: 1, Memory: 18,223,104, Memory Average: 18,223,104/18,051,085`
 
 In other words, timestamp followed by level, providername, eventname, eventid and message.
-The parser code is straightforward:
+The parser code we end up with is:
 
  ```pascal
  parseJson()
