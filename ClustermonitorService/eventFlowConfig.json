@@ -24,7 +24,7 @@
       "type": "ElasticSearch",
       "serviceUri": "https://cloud.humio.com/api/v1/ingest/elastic-bulk",
       "basicAuthenticationUserName": "",
-      "basicAuthenticationUserPassword": "Blah"
+      "basicAuthenticationUserPassword": "notUsed"
     }
   ],
   "schemaVersion": "2016-08-11",
