@@ -101,7 +101,7 @@ The result is then piped into parsing of the timestamp field which is assigned t
 
 ### Applications
 
-For the sample .net core application in this repo, we are using Serilog and filebeat for shipping.
+For the [sample .net core application](Applications/ConsoleExample/README.md) in this repo, we are using Serilog and filebeat for shipping.
 
 
 
