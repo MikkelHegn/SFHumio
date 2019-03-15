@@ -64,18 +64,18 @@ For the ETW log lines produced by Service Fabric and shipped by EventFlow we are
 Creating a new parser in Humio means going to the repository used for ingesting data, selecting 'Parsers' in the menu and clicking 'New parser'.
 Afterwards the parser should be assigned to the ingest token to be used, which is done under 'Settings' in the menu and then clicking 'Ingest API Tokens'. You can then change the 'Assigned Parser' through a dropdown box.
 
-The ingest token configured here is used together with Cluster Monitor Service described above.
+The ingest token configured here is used together with the [Cluster Monitor Service](ClustermonitorService/README.md) described above.
 
  The Service Fabric log lines contains both structured and unstructured data.
 Here's an example:
 
 `{"timestamp":"2019-02-26T10:40:51.0501913+00:00","providerName":"Microsoft-ServiceFabric","level":4,"keywords":1152921504606846977,"payload":{"ID":1284,"EventName":"PerfMonitor","Message":"Thread: 12, ActiveCallback: 1, Memory: 18,223,104, Memory Average: 18,223,104/18,051,085 ","threadCount":12,"activeCallback":1,"memory":18223104,"shortavg":18223104,"longavg":18051085}}`
 
-As the log line stands right now it is ill-fit for a human operator. The `Message` fields is basically a summary of some of the other fields and represents a nice overview. Our parser will instead present this line in Humio:
+As the log line stands right now it is ill-fit for a human operator. Reading the json data carefully we see that the `Message` fields is basically a summary of some of the other fields and represents a nice overview. Our parser will instead present this line in Humio:
 
 `2019-02-26 11:40:51.050 | 4 | Microsoft-ServiceFabric | PerfMonitor | 1284 | Thread: 12, ActiveCallback: 1, Memory: 18,223,104, Memory Average: 18,223,104/18,051,085`
 
-In other words, timestamp followed by level, providername, eventname, eventid and message.
+In other words, timestamp followed by level, providername, eventname, eventid and the message we identified before.
 The parser code we end up with is:
 
  ```pascal
@@ -90,7 +90,7 @@ The result is then piped into parsing of the timestamp field which is assigned t
 
 ### Applications
 
-For the sample application in this repo, we are using Serilog.
+For the sample .net core application in this repo, we are using Serilog and filebeat for shipping.
 
 #### Serilog
 
@@ -114,13 +114,60 @@ With the following configuration in code:
 
 ```csharp
 Log.Logger = new LoggerConfiguration()
-                .WriteTo.File(formatter: new JsonFormatter(renderMessage: true), rollingInterval: RollingInterval.Day)
+                .Enrich.FromLogContext()
+                .Enrich.With(new ServiceFabricEnricher())
+                .WriteTo.File(
+                    formatter: new JsonFormatter(renderMessage: true),
+                    path: log,
+                    retainedFileCountLimit: 5,
+                    shared: true)
                 .CreateLogger();
 ```
 
-Note the `renderMessage: true` part of the configuration. This instructs Serilog to render the message as part of the formatted log output which ends up in our log files. We are going to exploit a feature in Humio which allows us to display the rendered message instead of the raw json data. This makes it easier for a human to process the log lines.
+Note the `renderMessage: true` part of the configuration. This instructs Serilog to render the message as part of the formatted log output which ends up in our log files. We are going to exploit the same @display feature in Humio which allows us to display the rendered message instead of the raw json data. This makes it easier for a human to process the log lines. All data is still available though, for searching and inspection etc. in Humio. 
 
-The log file acts as a persistent buffer between your program and your log management system which enables us to handle retransmissions and long lasting bursts of log lines.
+Our `ServiceFabricEnricher` class enriches our log lines with information from the node which the application instance is running on:
+
+```csharp
+ public class ServiceFabricEnricher : ILogEventEnricher
+    {
+        private static readonly string instanceId = Guid.NewGuid().ToString();
+        private static readonly string processId = Process.GetCurrentProcess().Id.ToString();
+        private static readonly string node = Environment.GetEnvironmentVariable("Fabric_NodeName");
+        private static readonly string service = Environment.GetEnvironmentVariable("Fabric_ServiceName");
+        private static readonly string application = Environment.GetEnvironmentVariable("Fabric_ApplicationName");
+
+        public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
+        {
+            if (!string.IsNullOrWhiteSpace(instanceId))
+            {
+                logEvent.AddPropertyIfAbsent(new LogEventProperty("InstanceId", new ScalarValue(instanceId)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(node))
+            {
+                logEvent.AddPropertyIfAbsent(new LogEventProperty("Fabric_NodeName", new ScalarValue(node)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(service))
+            {
+                logEvent.AddPropertyIfAbsent(new LogEventProperty("Fabric_ServiceName", new ScalarValue(service)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(application))
+            {
+                logEvent.AddPropertyIfAbsent(new LogEventProperty("Fabric_ApplicationName", new ScalarValue(application)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(processId))
+            {
+                logEvent.AddPropertyIfAbsent(new LogEventProperty("ProcessId", new ScalarValue(processId)));
+            }
+        }
+    }
+```
+
+Writing to a log file instead of shipping the logs in-process is a deliberate decision.  The file acts as a persistent buffer between your program and your log management system which enables us to handle retransmissions and long lasting bursts of log lines.
 
 #### Filebeat
 
