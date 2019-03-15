@@ -113,6 +113,7 @@ With serilog you can configure where and how your log lines are outputted. The o
 With the following configuration in code:
 
 ```csharp
+var log = Path.Combine("log", $"ConsoleExample.log");
 Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .Enrich.With(new ServiceFabricEnricher())
