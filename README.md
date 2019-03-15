@@ -1,11 +1,10 @@
 # SFHumio
 
-
 <img src="images/sf.png" width="200" />
-<img src="images/humio.png" width="200" />
-
 
 Azure Service Fabric is a distributed systems platform that makes it easy to package, deploy, and manage scalable and reliable microservices and containers. Developers and administrators can avoid complex infrastructure problems and focus on implementing mission-critical, demanding workloads that are scalable, reliable, and manageable.
+
+<img src="images/humio.png" width="200" />
 
 Humio is a log management system, which enables you to log everything and answer anything in real-time. You can send, search, and visualize all logs instantly, easily, and affordably, On-Premises or in the Cloud.
 
