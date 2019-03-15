@@ -15,7 +15,16 @@ The content in this repo is to be considered as examples of how you can build ou
 
 ## Repo overview
 
-The README.md file in the root (the one you are reading now), contains an overview of the solution. To replica the solution, follow the instructions in [How to setup the solution](./SETUP.md). This will point out how to use the assets in the sub directories.
+The README.md file in the root (the one you are reading now), contains an overview of the solution. Guides for setting up specific pieces of the solution are contained in the README.md of subfolders. E.g. [Humio/README.md](Humio/README.md).
+
+For the complete solution these steps are involved:
+
+1. Setting up [Humio](Humio/README.md).
+2. A running Service Fabric Cluster.
+3. Installing the [Cluster Monitor Service](ClusterMonitorServie/README.md).
+4. Installing [filebeat](FileBeatSFService/README.md)
+
+
 
 ## Logging when running distributed applications in a Service Fabric cluster
 
