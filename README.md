@@ -92,6 +92,8 @@ The result is then piped into parsing of the timestamp field which is assigned t
 
 For the sample .net core application in this repo, we are using Serilog and filebeat for shipping.
 
+
+
 #### Serilog
 
 TODO: Update with enricher implementation...
