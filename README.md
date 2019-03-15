@@ -22,6 +22,7 @@ For the complete solution these steps are involved:
 1. Setting up [Humio](Humio/README.md).
 2. A running Service Fabric Cluster.
 3. Installing the [Cluster Monitor Service](ClusterMonitorServie/README.md).
+4. Creating a parser for the Service Fabric Events ingested by the Cluster Monitor Service. Make sure it's called 'servicefabric-platform'.
 4. Installing [filebeat](FileBeatSFService/README.md)
 
 
@@ -72,7 +73,7 @@ Details for installing the service can be found in [Cluster Monitor Service](Clu
 
 For the ETW log lines produced by Service Fabric and shipped by EventFlow we are going to write a [custom parser](https://docs.humio.com/parsers/#creating-a-custom-parser) in Humio. Parsers are written in Humios query language.
 
-Creating a new parser in Humio means going to the repository used for ingesting data, selecting 'Parsers' in the menu and clicking 'New parser'.
+Creating a new parser in Humio means going to the repository used for ingesting data, selecting 'Parsers' in the menu and clicking 'New parser'. Make sure to call the parser `servicefabric-platform`.
 Afterwards the parser should be assigned to the ingest token to be used, which is done under 'Settings' in the menu and then clicking 'Ingest API Tokens'. You can then change the 'Assigned Parser' through a dropdown box.
 
 The ingest token configured here is used together with the [Cluster Monitor Service](ClustermonitorService/README.md) described above.
@@ -314,5 +315,3 @@ According to the [documentation](https://docs.microsoft.com/en-us/dotnet/api/sys
 Combining the knowledge we have gained from digging into our logs, we can build a Service Fabric cluster dashboard:
 
 ![freetext search](images/cluster-dashboard.png)
-
-See the
