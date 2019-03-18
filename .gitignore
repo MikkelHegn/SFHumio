@@ -1,3 +1,6 @@
+# private config files
+*-priv.*
+
 # Autosave files
 *~
 
