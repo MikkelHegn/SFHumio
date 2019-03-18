@@ -1,17 +1,17 @@
-# SFHumio
+# Service Fabric and Humio
 
-<img src="images/sf.png" width="200" />
+![Service Fabric logo](images/sf.png "Service Fabric")
+![Plus sign](images/and.png "and")
+![Humio logo](images/humio.png "Humio")
 
 Azure Service Fabric is a distributed systems platform that makes it easy to package, deploy, and manage scalable and reliable microservices and containers. Developers and administrators can avoid complex infrastructure problems and focus on implementing mission-critical, demanding workloads that are scalable, reliable, and manageable.
-
-<img src="images/humio.png" width="200" />
 
 Humio is a log management system, which enables you to log everything and answer anything in real-time. You can send, search, and visualize all logs instantly, easily, and affordably, On-Premises or in the Cloud.
 
 This repo contains source and guides on how to use Humio together with Service Fabric clusters and applications.
 
 **_Disclaimer_**
-The content in this repo is to be considered as examples of how you can build out the setup described. It is by no means intended for production usage, without further testing and improvements. Please refer to documentation of the individual technologies  used as part of this repository.
+The content in this repo is to be considered as examples of how you can build out the setup described. It is by no means intended for production usage, without thorough testing. Please refer to documentation of the individual technologies used as part of this repository.
 
 ## Repo overview
 
@@ -21,11 +21,11 @@ For the complete solution these steps are involved:
 
 1. Setting up [Humio](Humio/README.md).
 2. A running Service Fabric Cluster.
-3. Installing the [Cluster Monitor Service](ClusterMonitorServie/README.md).
+3. Installing the [Cluster Monitor Service](ClustermonitorService/README.md).
 4. Creating a parser for the Service Fabric Events ingested by the Cluster Monitor Service. Make sure it's called 'servicefabric-platform'.
-4. Installing [filebeat](FileBeatSFService/README.md)
+5. Installing [filebeat](FileBeatSFService/README.md)
 
-For details, keep reading..
+For details, keep reading...
 
 ## Logging when running distributed applications in a Service Fabric cluster
 
@@ -39,35 +39,27 @@ As an example, there are various metrics and logs we want to collect on all thre
 | Platform | Service Fabric cluster and runtime using ETW  | ClusterMonitor service, using Microsoft.Diagnostics.EventFlow | Humio |
 | Applications | Serilog for .net core outputting to log files | Filebeat | Humio |
 
-
 For the infrastructure layer which we are not covering in this article, we suggest taking a look at [metricbeat](https://www.elastic.co/products/beats/metricbeat) and [winlogbeat](https://www.elastic.co/downloads/beats/winlogbeat) which also integrates with Humio. Humio offers excellent compression of ingested data (10x) and maintains no indices that take up your disk space and slows down your ingest. Supporting the philosophy of *logging everything*.
 
 ## The solution
 
 In this section we will go over the different components and how we have used them in this setup.
-<!---
-### Infrastructure
-
-Let's start at the bottom... The hardware and the Windows OS, which make up our Service Fabric cluster, emits logs and events and performance counters we can pick up using any agent built for this purpose. In Azure, you could use Azure Monitor, in an on-premises setup, you can use the Microsoft Management Agent and push the information to OMS or similar solution.
-
-We have not covered this layer as part of this solution, as most organizations already have a standardized way of monitoring infrastructure. For monitoring a Service Fabric cluster, this layer does not add any specific requirements, hence doesn't require any specific solution.
-
-    
---->
 
 ### Platform
 
 #### Service Fabric Platform Events
 
->The Service Fabric platform writes several structured events for key operational activities happening within your cluster. These range from cluster upgrades to replica placement decisions. Each event that Service Fabric exposes maps to one of the following entities in the cluster: Cluster, Application, Service, Partition, Replica and Container. 
+>The Service Fabric platform writes several structured events for key operational activities happening within your cluster. These range from cluster upgrades to replica placement decisions. Each event that Service Fabric exposes maps to one of the following entities in the cluster: Cluster, Application, Service, Partition, Replica and Container.
 
 See [Service Fabric events](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-diagnostics-events) for full details.
 
-The platform events are collected by an, to the service fabric cluster itself, external service that runs on each machine participating in the cluster. 
+The platform events are collected by an, to the Service Fabric cluster itself, external service that runs on each machine participating in the cluster.
 The service utilizes the [EventFlow diagnostics library](https://github.com/Azure/diagnostics-eventflow) which have support for several Inputs and Outputs of different formats. In our case the relevant Input is ETW (Event Tracing for Windows) since the Service Fabric Platform Events are available as an ETW provider. The Output is ´ElasticSearch´. Humio has support for the Elasticsearch bulk API for easy integration with existing log shippers and agents.
 
 Details for installing the service can be found in [Cluster Monitor Service](ClustermonitorService/README.md).
 
+**Note**
+For the sake of this sample repo, we have increased the verbosity of the runtime to capture as much data as possible.
 
 #### Parsing Service Fabric Platform Events with Humio
 
@@ -104,8 +96,6 @@ The result is then piped into parsing of the timestamp field which is assigned t
 
 For the [sample .net core application](Applications/ConsoleExample/README.md) in this repo, we are using Serilog and filebeat for shipping.
 
-
-
 #### Serilog
 
 [Serilog](https://serilog.net) is a popular logging framework for .NET. Serilog is focused on *structured* logging.
@@ -137,9 +127,9 @@ Log.Logger = new LoggerConfiguration()
                 .CreateLogger();
 ```
 
-Note the `renderMessage: true` part of the configuration. This instructs Serilog to render the message as part of the formatted log output which ends up in our log files. As before we will use the @display feature in Humio which allows us to display the rendered message instead of the raw json data. This makes it easier for a human to process the log lines. All data is still available though, for searching and inspection etc. in Humio. 
+Note the `renderMessage: true` part of the configuration. This instructs Serilog to render the message as part of the formatted log output which ends up in our log files. As before we will use the @display feature in Humio which allows us to display the rendered message instead of the raw json data. This makes it easier for a human to process the log lines. All data is still available though, for searching and inspection etc. in Humio.
 
-Our `ServiceFabricEnricher` class enriches our log lines with information from the node which he application instance is running on:
+Our `ServiceFabricEnricher` class enriches our log lines with information from the node which the service instance is running on:
 
 ```csharp
  public class ServiceFabricEnricher : ILogEventEnricher
@@ -180,7 +170,7 @@ Our `ServiceFabricEnricher` class enriches our log lines with information from t
     }
 ```
 
-Writing to a log file instead of shipping the logs in-process is a deliberate decision.  The file acts as a persistent buffer between your program and your log management system which enables us to handle retransmissions and long lasting bursts of log lines.
+Writing to a log file instead of shipping the logs in-process is a deliberate decision. The file acts as a persistent buffer between your program and your log management system which enables us to handle retransmissions and long lasting bursts of log lines.
 
 #### Filebeat
 
@@ -211,7 +201,7 @@ output.elasticsearch:
 We need to get the `INGEST_TOKEN` from Humio. A default ingest token is configured for your log repository in Humio. Log in to Humio, go to your log repository, click Settings and then Ingest API Tokens' and either retrieve the default or create a new one.
 When you send logs and metrics to Humio for ingestion it needs to be parsed before it is stored in a repository. Humio has a built-in parser for Serilog that is configured as above. Make sure the Serilog parser is selected for the ingest token used. This is done by selecting the parser in the dropdown 'Assigned Parser' next to the Ingest Token.
 
-If you are experimenting with filebeat from the commandline start filebeat with `filebeat.exe -e -c filebeat.yml`. The `-e` flag instructs filebeat to log to the console which is useful when experimenting with the configuration.
+If you are experimenting with filebeat from the command line start filebeat with `filebeat.exe -e -c filebeat.yml`. The `-e` flag instructs filebeat to log to the console which is useful when experimenting with the configuration.
 
 ### Query and analyze
 
@@ -229,27 +219,26 @@ Let's say we want to plot the average number of user sessions the last hour:
 
 ![sum() timechart](images/sum-timechart.png)
 
-The query pipes events containing `sessions` (via the ```|``` operator) into the `timechart` query function which uses the `avg` function. Consult the docs for more on [language syntax](https://docs.humio.com/language-syntax/) and [query functions](https://docs.humio.com/query-functions/). 
+The query pipes events containing `sessions` (via the ```|``` operator) into the `timechart` query function which uses the `avg` function. Consult the docs for more on [language syntax](https://docs.humio.com/language-syntax/) and [query functions](https://docs.humio.com/query-functions/).
 
 Notice the `Properties.UserSessions`. This is a structured part of the Serilog log line that allows for easy analysis.
-For any unstructured part of your log data that isn't turned into a property on your events by the parser, Humio allows for extracting the data using regular expressions which are then added as one or more fields to the events in question. See the query function [regex()](https://docs.humio.com/query-functions/#regex) for more information. 
+For any unstructured part of your log data that isn't turned into a property on your events by the parser, Humio allows for extracting the data using regular expressions which are then added as one or more fields to the events in question. See the query function [regex()](https://docs.humio.com/query-functions/#regex) for more information.
 
 <!-- // TODO: or want the days where we at some point had less than.. -->
 
-Often we wan't to get an overview of exceptions being thrown by our applications:
+Often we want to get an overview of exceptions being thrown by our applications:
 
 ```pascal
 Level=Error | groupby(field=[Properties.Fabric_ApplicationName, Exception])
 ```
 
 The query groups exceptions by application name and exception message. Getting a total count of application exceptions can be achieved by:
-```
+
+```pascal
 Level=Error | count()
 ```
 
 Humio never rejects incoming logs, even logs it for some reason cannot parse. Doing the search `@error=* | groupBy(@error_msg)` will reveal any events that haven't been properly parsed and group them by reason.
-
-
 
 #### Searching Service Fabric Platform Events
 
